@@ -1,11 +1,14 @@
+require("dotenv").config(); // 🔁 Add this line FIRST
+
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../middleware/authMiddleware");
-const USER = require('../models/user');
+const USER = require("../models/user");
 
 const router = express.Router();
 const SECRET_KEY = process.env.SECRET_KEY;
+
 
 // ✅ Signup Route
 router.post("/signup", async (req, res) => {
@@ -36,6 +39,7 @@ router.post("/signup", async (req, res) => {
 router.post("/signin", async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("SECRET_KEY in /signin route:", SECRET_KEY);
 
     const user = await USER.findOne({ email });
     if (!user) {
@@ -49,7 +53,9 @@ router.post("/signin", async (req, res) => {
 
     const token = jwt.sign({ id: user._id, email: user.email }, SECRET_KEY, { expiresIn: "1h" });
 
-    res.json({ success: true, message: "Login successful", token });
+    res.json({ success: true, message: "Login successful", token ,userId:user._id ,email:user.email});
+    
+
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error" });
   }
@@ -83,5 +89,17 @@ router.get("/user", verifyToken, (req, res) => {
     decoded: req.user,
   });
 });
+
+//get by user id
+router.get("/user/:id", async (req, res) => {
+  try {
+    const user = await USER.findById(req.params.id).select("-password");
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching user" });
+  }
+});
+
 
 module.exports = router;

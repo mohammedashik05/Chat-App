@@ -2,10 +2,8 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "node.js",
-  "scripts": {
-    "dev": "nodemon node.js",
-    "start": "nodemon node.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+   "scripts": {
+    "dev": "nodemon node.js"   
   },
   "keywords": [],
   "author": "",
@@ -15,6 +13,7 @@
     "bcrypt": "^6.0.0",
     "dotenv": "^17.1.0",
     "jsonwebtoken": "^9.0.2",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1"
   }
 }

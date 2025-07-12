@@ -1,74 +1,88 @@
-import './Chat.css';
-import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import "./Chat.css";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { socket } from "./socket";
 
 function Chat() {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const [message, setMessage] = useState([]);
-  const email = localStorage.getItem('UserEmail') || '';
+  const email = localStorage.getItem("UserEmail") || "";
   const chatEndRef = useRef(null);
 
-  const handleSend = async () => {
-    if (!text.trim() || !email) return;
-
-    try {
-      await axios.post('http://localhost:7000/msg/add', { text, email });
-      setText('');
-      handleGet();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleGet = async () => {
-    try {
-      const res = await axios.get('http://localhost:7000/msg');
-      setMessage(res.data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = '/SignIn';
-  };
-
+  // 🟦 1. Fetch chat history & setup socket
   useEffect(() => {
-    handleGet();
+    // Load old messages
+    axios.get("http://localhost:7000/msg")
+      .then(res => setMessage(res.data))
+      .catch(console.error);
+
+    // Avoid multiple listeners
+    socket.off("chat:message");
+    socket.connect();
+
+    socket.on("chat:message", m =>
+      setMessage(prev => [...prev, m])
+    );
+
+    return () => {
+      socket.off("chat:message");
+      socket.disconnect();
+    };
   }, []);
 
+  // 🟦 2. Auto-scroll on new message
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [message]);
 
+  // 🟦 3. Send message via socket
+  const handleSend = () => {
+    if (!text.trim()) return;
+
+    socket.emit("chat:message", {
+      text,
+      createdAt: Date.now()
+    });
+
+    setText(""); // clear input
+  };
+
+  // 🟦 4. Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("UserEmail");
+    window.location.href = "/signin";
+  };
+
+  // 🟦 5. Render UI
   return (
     <div className="main-chat-container">
-      <h1 className="chat-title">
-        🚀 <span>Chat App </span>
-      </h1>
-      <p className="chat-welcome">Welcome, <strong>{email}</strong></p>
-      <button className="chat-Logout" onClick={handleLogout}>Logout</button>
+      <div className="chat-header">
+        <h2 className="chat-title">💬 Welcome to Chat Room</h2>
+        <div className="user-info">
+          <p><strong>User:</strong> {email}</p>
+          <button className="chat-logout" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </div>
 
       <div className="chat-box chat-messages">
-        {message.map((msg, index) => (
-          <div
-            key={index}
-            className={`message ${msg.email === email ? 'sender' : 'receiver'}`}
-          >
-            <strong>{msg.email === email ? 'You' : msg.email}</strong>
-            <p>{msg.text}</p>
+        {message.map((m, i) => (
+          <div key={i} className={`message ${m.email === email ? 'sender' : 'receiver'}`}>
+            <strong>{m.email === email ? "You" : m.email}</strong>
+            <p>{m.text}</p>
           </div>
         ))}
-        <div ref={chatEndRef} />
+        <div ref={chatEndRef}></div>
       </div>
 
       <div className="input-field">
         <input
-          type="text"
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type your message..."
+          type="text"
+          onChange={e => setText(e.target.value)}
+          placeholder="Type your message…"
         />
         <button onClick={handleSend}>Send</button>
       </div>
