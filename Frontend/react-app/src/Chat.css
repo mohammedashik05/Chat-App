@@ -1,59 +1,65 @@
-
-
-
-
-/* Chat.css
-
-/* ---------- Layout ---------- */
-
+/* ============================
+   GLOBAL
+============================ */
 body {
   margin: 0;
   padding: 0;
-  background-color: #f3f4f6;  /* light gray */
+  background-color: #f3f4f6;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* ============================
+   MAIN CHAT CONTAINER
+============================ */
 .main-chat-container {
-  max-width: 600px;
-  margin: 2rem auto;
+  width: 80vw;
+  max-width: 800px;    
+  margin: 1rem auto;
+  padding: 1rem;
   background: #ffffff;
-  padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  box-sizing: border-box;
 }
 
-/* ---------- Header ---------- */
-.user-info{
+/* ============================
+   HEADER
+============================ */
+.chat-header {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  /* justify-content: space-between; */
+  align-items: center;
+  flex-wrap: wrap;            
+  /* gap: 0.2rem; */
 }
 
 .chat-title {
   font-size: 1.6rem;
   font-weight: bold;
-  color: #4f46e5; /* Tailwind indigo-600 */
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0%;
+  color: #4f46e5;
+  /* margin: 0; */
 }
 
-.chat-welcome {
-  margin-top: 0.3rem;
-  color: #374151; /* Tailwind gray-700 */
-  font-size: 1rem;
+.user-info {
+  /* text-align: right; */
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* gap: 0.5rem; */
 }
 
 .chat-logout {
-  margin-top: 0.5rem;
-  background-color: #ef4444; /* red */
+  /* margin-top: 0.3rem; */
+  background-color: #ef4444;
   color: white;
-  padding: 10px 15px;
+  padding: 8px 14px;
   border: none;
   border-radius: 6px;
   font-weight: 500;
@@ -61,96 +67,97 @@ body {
   transition: background-color 0.2s ease;
 }
 
-.chat-Logout:hover {
+.chat-logout:hover {
   background-color: #dc2626;
 }
+.chat-title{
+  padding: 0%;
+  margin: 0%;
+}
 
-/* ---------- Message Box ---------- */
-
+/* ============================
+   CHAT BOX
+============================ */
 .chat-box {
   width: 100%;
-  height: 320px;
+  height: 55vh;               
+  min-height: 300px;
   overflow-y: auto;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
   padding: 1rem;
-  background-color: #f9fafb; /* Tailwind gray-50 */
-  border: 1px solid #e5e7eb; /* Tailwind gray-200 */
+  background-color: #f9fafb;
   border-radius: 8px;
+  border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
+  box-sizing: border-box;
 }
 
-/* ---------- Individual Message ---------- */
-
+/* ============================
+   MESSAGE BUBBLES
+============================ */
 .message {
-  max-width: 75%;
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
-  font-size: 0.95rem;
+  max-width: 80%;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
   line-height: 1.4;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   word-break: break-word;
-  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
-
-/* Sender (You) */
 
 .sender {
+  background-color: #dbeafe;
+  color: #1e3a8a;
   align-self: flex-end;
-  background-color: #e5e7eb; /* light blue */
-  color: #1e3a8a; /* dark blue text */
   text-align: right;
 }
 
-/* Receiver (Others) */
-
 .receiver {
+  background-color: #e5e7eb;
+  color: #1f2937;
   align-self: flex-start;
-  background-color: #e5e7eb; /* gray */
-  color: #1f2937; /* gray-800 */
-  text-align: left;
 }
 
-/* Name label */
-
-.message > strong {
-  display: block;
-  font-size: 0.8rem;
-  /* margin-bottom: 0.25rem; */
+.message strong {
+  font-size: 0.75rem;
   color: #4f46e5;
-}
-.message p{
-    margin: 0;
+  margin-bottom: 0.25rem;
+  display: block;
 }
 
-/* ---------- Input Section ---------- */
+.message p {
+  margin: 0;
+}
 
+/* ============================
+   INPUT FIELD
+============================ */
 .input-field {
   width: 100%;
   display: flex;
   gap: 0.5rem;
+  box-sizing: border-box;
 }
 
-.input-field input[type="text"] {
+.input-field input {
   flex: 1;
-  padding: 0.6rem 1rem;
+  padding: 0.7rem 1rem;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1rem;
-  background: white;
   outline: none;
 }
 
 .input-field input:focus {
-  border-color: #6366f1; /* Tailwind indigo-500 */
+  border-color: #6366f1;
 }
 
 .input-field button {
-  background-color: #6366f1; /* Tailwind indigo-500 */
+  background-color: #6366f1;
   color: white;
-  padding: 0.6rem 1.2rem;
+  padding: 0.7rem 1.2rem;
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -159,84 +166,61 @@ body {
 }
 
 .input-field button:hover {
-  background-color: #4f46e5; /* Tailwind indigo-600 */
+  background-color: #4f46e5;
 }
 
-/* ---------- Scrollbar (optional beautify) ---------- */
+/* ============================
+   RESPONSIVE DESIGN
+============================ */
 
-
-/* ---------- Responsive ---------- */
-
-/* ---------- Tablet view (601px to 900px) ---------- */
+/* Tablets (600px - 900px) */
 @media (max-width: 900px) {
-  .main-chat-container {
-    margin: 1rem;
-    padding: 1rem;
-  }
-
   .chat-title {
-    font-size: 1.3rem;
-  }
-
-  .chat-box {
-    height: 300px;
-    padding: 0.8rem;
+    font-size: 1.4rem;
   }
 
   .message {
     font-size: 0.9rem;
-    padding: 0.5rem 0.8rem;
     max-width: 85%;
-  }
-
-  .input-field input[type="text"] {
-    font-size: 0.95rem;
-    padding: 0.5rem 0.8rem;
-  }
-
-  .input-field button {
-    padding: 0.5rem 1rem;
-    font-size: 0.95rem;
   }
 }
 
-/* ---------- Mobile view (up to 600px) ---------- */
+/* Mobile (<600px) */
 @media (max-width: 600px) {
   .main-chat-container {
-    margin: 0.5rem;
+    /* margin: 0.5rem; */
     padding: 0.8rem;
+    /* width: 160%; */
+    /* width: 400px; */
   }
 
   .chat-title {
-    font-size: 1.2rem;
-    flex-wrap: wrap;
+    width: 100%;
+    text-align: center;
+    font-size: 1.3rem;
+  }
+
+  .user-info {
+    width: 100%;
+    text-align: center;
   }
 
   .chat-box {
-    height: 60vh;
-    padding: 0.6rem;
+    height: 55vh;       /* Good for mobile */
+    padding: 0.7rem;
   }
 
   .message {
-    font-size: 0.85rem;
-    padding: 0.4rem 0.7rem;
     max-width: 90%;
+    font-size: 0.9rem;
   }
 
   .input-field {
     flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .input-field input[type="text"] {
-    font-size: 0.9rem;
-    padding: 0.5rem;
   }
 
   .input-field button {
-    padding: 0.5rem;
-    font-size: 0.9rem;
+    width: 100%;
   }
 }
-
 

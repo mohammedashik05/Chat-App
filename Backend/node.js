@@ -1,4 +1,3 @@
-// backend/server.js
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -7,62 +6,97 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
-// Load env vars
-dotenv.config();
-console.log("SECRET_KEY loaded ->", process.env.SECRET_KEY); // ✅ Confirm this shows value
-
 import authRoutes from "./routes/authRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import MSG from "./models/message.js";
 
+dotenv.config();
+
 const app = express();
 const server = http.createServer(app);
+
+// SOCKET.IO SETUP (with env)
+
 const io = new Server(server, {
-  cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] }
+  cors: {
+    origin: process.env.SOCKET_ORIGIN,
+    methods: ["GET", "POST"],
+  },
 });
 
+
+
+// PORT
 const PORT = process.env.PORT || 7000;
 
-// Middleware
-app.use(cors());
+// DATABASE CONNECTIONS
+// User DB
+mongoose
+  .connect(process.env.MONGO_DB_USER)
+  .then(() => console.log("✅ Mongo USER connected"))
+  .catch((err) => console.error("USER DB Error:", err));
+
+// Message DB
+const messageDB = mongoose.createConnection(process.env.MONGO_DB_MSG);
+messageDB.on("connected", () => console.log("✅ Mongo MSG connected"));
+messageDB.on("error", (err) => console.error("MSG DB Error:", err));
+
+// MIDDLEWARE
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
-// DB Connections
-mongoose.connect(process.env.MONGO_DB_USER)
-  .then(() => console.log("✅ Mongo USER connected"))
-  .catch(err => console.error("USER DB Error:", err));
 
-mongoose.createConnection(process.env.MONGO_DB_MSG)
-  .on("connected", () => console.log("✅ Mongo MSG connected"))
-  .on("error", err => console.error("MSG DB Error:", err));
-
-// Routes
+// ROUTES
 app.use("/api", authRoutes);
 app.use("/msg", messageRoutes);
 
-// WebSocket Auth
+
+// SOCKET AUTH MIDDLEWARE
 io.use((socket, next) => {
   const token = socket.handshake.auth?.token;
-  if (!token) return next(new Error("No token provided"));
+
+  if (!token) {
+    return next(new Error("No token provided"));
+  }
 
   try {
     socket.user = jwt.verify(token, process.env.SECRET_KEY);
-    return next();
+    next();
   } catch (err) {
-    return next(new Error("Invalid / expired token"));
+    next(new Error("Invalid or expired token"));
   }
 });
 
-io.on("connection", (socket) => {
+// SOCKET EVENTS
+io.on("connection", async (socket) => {
   console.log(`🔌 ${socket.user.email} connected (${socket.id})`);
 
+  // Send chat history
+  const history = await MSG.find().sort({ createdAt: 1 });
+  socket.emit("chat:history", history);
+
+  // New message event
   socket.on("chat:message", async ({ text }) => {
     if (!text?.trim()) return;
-    const msgDoc = await MSG.create({ text, email: socket.user.email });
+
+    const msgDoc = await MSG.create({
+      text,
+      email: socket.user.email,
+    });
+
     io.emit("chat:message", {
       id: msgDoc._id,
-      text,
-      email: socket.user.email
+      text: msgDoc.text,
+      email: msgDoc.email,
+      timestamp: msgDoc.createdAt,
     });
   });
 
@@ -71,6 +105,7 @@ io.on("connection", (socket) => {
   });
 });
 
+// START SERVER
 server.listen(PORT, () => {
-  console.log(`🚀 REST + WebSocket up on http://localhost:${PORT}`);
+  console.log(`🚀 Server + WebSocket running on port ${PORT}`);
 });

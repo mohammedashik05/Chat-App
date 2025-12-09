@@ -1,46 +1,57 @@
-// SignUp.jsx
 import { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import '../auth.css';
+import toast from "react-hot-toast";
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [status, setStatus] = useState('');
-  const [error, setError] = useState('');
-  const API = 'http://localhost:7000/api';
+  
+  const API = import.meta.env.VITE_API_BASE_URL;
 
   const handleSignUp = () => {
     if (!email || !password) {
-      setError("Both fields are required");
+      toast.error("Both fields are required");
       return;
     }
 
-    axios.post(`${API}/signup`, { email, password })
+    axios.post(`${API}/api/signup`, { email, password })
       .then((res) => {
-        setStatus(res.data.message);
-        setError('');
-        alert(res.data.message);
+        toast.success(res.data.message);
+        setEmail("");
+        setPassword("");
       })
       .catch((err) => {
-        setError(err.response?.data?.message || "Sign up failed");
-        setStatus('');
+        toast.error(err.response?.data?.message || "Sign up failed");
       });
   };
 
   return (
-    <div className="auth-container">
-      <h2>Register</h2>
-      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={handleSignUp}>Sign Up</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {status && <p style={{ color: 'green' }}>{status}</p>}
-      <p>Already have an account? <Link to="/signin">Sign In</Link></p>
+    <div className="auth-page-wrapper">
+      <div className="auth-container">
+        <h2>Register</h2>
+
+        <input 
+          type="email" 
+          placeholder="Email" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)} 
+        />
+
+        <input 
+          type="password" 
+          placeholder="Password" 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)} 
+        />
+
+        <button onClick={handleSignUp}>Sign Up</button>
+
+        <p>Already have an account? <Link to="/signin">Sign In</Link></p>
+      </div>
     </div>
   );
 };
 
 export default SignUp;
-

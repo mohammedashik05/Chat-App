@@ -39,7 +39,7 @@ router.post("/signup", async (req, res) => {
 router.post("/signin", async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("SECRET_KEY in /signin route:", SECRET_KEY);
+    // console.log("SECRET_KEY in /signin route:", SECRET_KEY);
 
     const user = await USER.findOne({ email });
     if (!user) {
